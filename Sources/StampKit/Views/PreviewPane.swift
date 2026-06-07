@@ -30,7 +30,7 @@ struct PreviewPane: View {
             VStack(alignment: .leading, spacing: 2) {
                 Text(doc.filename).font(.headline).lineLimit(1)
                     .foregroundStyle(Theme.inkNavy)
-                Text(doc.pageCount == 1 ? "1 page" : "\(doc.pageCount) pages")
+                Text(state.strings.pageCount(doc.pageCount))
                     .font(.caption).foregroundStyle(Theme.inkNavy.opacity(0.7))
             }
             Spacer()
@@ -61,7 +61,7 @@ struct PreviewPane: View {
                             .frame(width: rect.width, height: rect.height)
                             .position(x: rect.midX, y: rect.midY)
                             .gesture(dragGesture(imgFrame: frame))
-                            .help("Drag to reposition the stamp")
+                            .help(state.strings.dragStamp)
                     }
                 } else {
                     ProgressView().frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -82,7 +82,7 @@ struct PreviewPane: View {
             Button {
                 Task { await state.approve(doc) }
             } label: {
-                Label("Approve & Save", systemImage: "checkmark.seal.fill")
+                Label(state.strings.approveSave, systemImage: "checkmark.seal.fill")
                     .frame(minWidth: 140)
             }
             .buttonStyle(.borderedProminent)
@@ -96,7 +96,7 @@ struct PreviewPane: View {
 
     private var nudgePad: some View {
         HStack(spacing: 6) {
-            Text("Nudge").font(.caption).foregroundStyle(Theme.inkNavy.opacity(0.7))
+            Text(state.strings.adjust).font(.caption).foregroundStyle(Theme.inkNavy.opacity(0.7))
             nudgeButton("arrow.left", dx: -nudgeStep, dy: 0)
             VStack(spacing: 4) {
                 nudgeButton("arrow.up", dx: 0, dy: nudgeStep)
@@ -116,7 +116,7 @@ struct PreviewPane: View {
     private var statusView: some View {
         switch doc.status {
         case .written:
-            Label("Saved", systemImage: "checkmark.circle.fill")
+            Label(state.strings.statusSaved, systemImage: "checkmark.circle.fill")
                 .foregroundStyle(Theme.stormyTeal)
         case .failed(let message):
             Label(message, systemImage: "exclamationmark.triangle.fill")
@@ -194,7 +194,7 @@ struct DeductionPicker: View {
     @Binding var deduction: DeductionLevel
 
     var body: some View {
-        Picker("Deduction", selection: $deduction) {
+        Picker("Déduction", selection: $deduction) {
             ForEach(DeductionLevel.allCases) { level in
                 Text(level.label).tag(level)
             }

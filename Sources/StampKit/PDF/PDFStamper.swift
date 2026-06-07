@@ -12,11 +12,11 @@ public enum PDFStamper {
 
         var errorDescription: String? {
             switch self {
-            case .cannotOpen: return "Couldn't open the PDF."
-            case .noPages: return "The PDF has no pages."
-            case .missingStampImage: return "The stamp image is missing."
-            case .renderFailed: return "Couldn't render the stamped page."
-            case .writeFailed: return "Couldn't save the stamped PDF."
+            case .cannotOpen: return "Impossible d'ouvrir le PDF."
+            case .noPages: return "Le PDF ne contient aucune page."
+            case .missingStampImage: return "L'image du tampon est introuvable."
+            case .renderFailed: return "Impossible de générer la page tamponnée."
+            case .writeFailed: return "Impossible d'enregistrer le PDF tamponné."
             }
         }
     }

@@ -7,12 +7,21 @@ final class AppState: ObservableObject {
     @Published var documents: [StampDoc] = []
     @Published var selection: StampDoc.ID?
     @Published var outputFolder: URL
+    /// When true, each stamped PDF is written next to its original instead of
+    /// into `outputFolder`.
+    @Published var useSourceFolder: Bool
+    @Published var language: AppLanguage
     @Published var isWriting = false
     /// Number of documents written during the current/last batch run.
     @Published var batchWritten = 0
     @Published var batchTotal = 0
 
     private let outputFolderKey = "outputFolderPath"
+    private let useSourceFolderKey = "useSourceFolder"
+    private let languageKey = "appLanguage"
+
+    /// Localized strings for the current language.
+    var strings: L10n { L10n(lang: language) }
 
     init() {
         if let saved = UserDefaults.standard.string(forKey: outputFolderKey) {
@@ -20,15 +29,40 @@ final class AppState: ObservableObject {
         } else {
             outputFolder = OutputService.defaultFolder
         }
+        useSourceFolder = UserDefaults.standard.bool(forKey: useSourceFolderKey)
+        if let raw = UserDefaults.standard.string(forKey: languageKey),
+           let saved = AppLanguage(rawValue: raw) {
+            language = saved
+        } else {
+            language = .french
+        }
     }
 
     var selectedDoc: StampDoc? {
         documents.first { $0.id == selection }
     }
 
+    /// Documents that haven't been written yet — the targets of a "Save All".
+    var pendingDocuments: [StampDoc] {
+        documents.filter {
+            if case .written = $0.status { return false }
+            return true
+        }
+    }
+
     func setOutputFolder(_ url: URL) {
         outputFolder = url
         UserDefaults.standard.set(url.path, forKey: outputFolderKey)
+    }
+
+    func setUseSourceFolder(_ value: Bool) {
+        useSourceFolder = value
+        UserDefaults.standard.set(value, forKey: useSourceFolderKey)
+    }
+
+    func setLanguage(_ value: AppLanguage) {
+        language = value
+        UserDefaults.standard.set(value.rawValue, forKey: languageKey)
     }
 
     // MARK: - Import
@@ -50,7 +84,7 @@ final class AppState: ObservableObject {
         let aspect = StampRenderer.aspectRatio(for: doc.deduction)
         Task.detached(priority: .userInitiated) {
             guard let pdf = PDFDocument(url: url), let page = pdf.page(at: 0) else {
-                await MainActor.run { doc.status = .failed("Couldn't open PDF") }
+                await MainActor.run { doc.status = .failed("Impossible d'ouvrir le PDF") }
                 return
             }
             let count = pdf.pageCount
@@ -71,11 +105,7 @@ final class AppState: ObservableObject {
     }
 
     func approveAll() async {
-        let pending = documents.filter {
-            if case .written = $0.status { return false }
-            return true
-        }
-        await write(pending)
+        await write(pendingDocuments)
     }
 
     private func write(_ docs: [StampDoc]) async {
@@ -85,13 +115,12 @@ final class AppState: ObservableObject {
         batchWritten = 0
         defer { isWriting = false }
 
-        OutputService.ensureFolderExists(outputFolder)
-        let folder = outputFolder
-
         for doc in docs {
             let url = doc.sourceURL
             let level = doc.deduction
             let rect = doc.stampRect
+            let folder = useSourceFolder ? url.deletingLastPathComponent() : outputFolder
+            OutputService.ensureFolderExists(folder)
             let result: Result<URL, Error> = await Task.detached(priority: .userInitiated) {
                 do {
                     let out = try PDFStamper.stamp(

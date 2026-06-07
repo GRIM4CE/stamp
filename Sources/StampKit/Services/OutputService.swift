@@ -4,7 +4,7 @@ enum OutputService {
     static var defaultFolder: URL {
         FileManager.default.homeDirectoryForCurrentUser
             .appendingPathComponent("Documents", isDirectory: true)
-            .appendingPathComponent("Stamped Invoices", isDirectory: true)
+            .appendingPathComponent("Factures tamponnées", isDirectory: true)
     }
 
     static func ensureFolderExists(_ url: URL) {

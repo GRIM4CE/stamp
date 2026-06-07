@@ -4,17 +4,76 @@ import UniformTypeIdentifiers
 struct ContentView: View {
     @EnvironmentObject var state: AppState
     @State private var isDropTargeted = false
+    @State private var showSidebar = true
+    @State private var showSettings = false
 
     var body: some View {
-        NavigationSplitView {
-            DocumentListView()
-                .navigationSplitViewColumnWidth(min: 280, ideal: 320, max: 420)
-        } detail: {
-            detail
+        VStack(spacing: 0) {
+            header
+            Divider()
+            HStack(spacing: 0) {
+                if showSidebar {
+                    DocumentListView()
+                        .frame(width: 320)
+                    Divider()
+                }
+                detail
+            }
+            Divider()
+            footer
         }
-        .toolbar { toolbarContent }
         .overlay(dropHighlight)
         .onDrop(of: [.fileURL], isTargeted: $isDropTargeted, perform: handleDrop)
+        .sheet(isPresented: $showSettings) {
+            SettingsView()
+        }
+    }
+
+    // MARK: - Header
+
+    private var header: some View {
+        HStack(spacing: 12) {
+            Text("Stamp")
+                .font(.title2.weight(.bold))
+                .foregroundStyle(Theme.inkNavy)
+            Spacer()
+
+            Button { showSettings = true } label: {
+                Image(systemName: "gearshape")
+                    .font(.system(size: 16, weight: .medium))
+            }
+            .buttonStyle(.plain)
+            .foregroundStyle(Theme.inkNavy.opacity(0.7))
+            .help(state.strings.settingsTitle)
+        }
+        // Leave room on the left for the window's traffic-light controls,
+        // which float over the content when the title bar is hidden.
+        .padding(.leading, 80)
+        .padding(.trailing, 16)
+        .frame(height: 52)
+        .background(Color.white)
+    }
+
+    // MARK: - Footer
+
+    // Pinned to the bottom of the window so the sidebar toggle stays in one fixed
+    // spot whether the list is shown or hidden.
+    private var footer: some View {
+        HStack(spacing: 12) {
+            Button {
+                withAnimation(.easeInOut(duration: 0.2)) { showSidebar.toggle() }
+            } label: {
+                Image(systemName: "sidebar.leading")
+                    .font(.system(size: 16, weight: .medium))
+            }
+            .buttonStyle(.plain)
+            .foregroundStyle(Theme.inkNavy.opacity(0.7))
+            .help(showSidebar ? state.strings.sidebarHide : state.strings.sidebarShow)
+            Spacer()
+        }
+        .padding(.horizontal, 16)
+        .frame(height: 36)
+        .background(Color.white)
     }
 
     @ViewBuilder
@@ -25,37 +84,12 @@ struct ContentView: View {
             VStack(spacing: 10) {
                 Image(systemName: "sparkles.rectangle.stack")
                     .font(.system(size: 40)).foregroundStyle(Theme.pearlAqua)
-                Text("Select an invoice to preview the stamp")
+                Text(state.strings.selectInvoice)
                     .foregroundStyle(Theme.stormyTeal.opacity(0.7))
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(Theme.aliceBlue)
         }
-    }
-
-    @ToolbarContentBuilder
-    private var toolbarContent: some ToolbarContent {
-        ToolbarItemGroup(placement: .navigation) {
-            Button { addPDFs() } label: { Label("Add PDFs", systemImage: "plus") }
-        }
-        ToolbarItemGroup(placement: .primaryAction) {
-            outputFolderButton
-            if state.isWriting {
-                ProgressView(value: Double(state.batchWritten), total: Double(max(state.batchTotal, 1)))
-                    .frame(width: 120)
-            }
-            Button { Task { await state.approveAll() } } label: {
-                Label("Approve All", systemImage: "checkmark.seal")
-            }
-            .disabled(state.documents.isEmpty || state.isWriting)
-        }
-    }
-
-    private var outputFolderButton: some View {
-        Button { chooseOutputFolder() } label: {
-            Label(state.outputFolder.lastPathComponent, systemImage: "folder")
-        }
-        .help("Stamped PDFs are saved to: \(state.outputFolder.path)")
     }
 
     private var dropHighlight: some View {
@@ -67,17 +101,6 @@ struct ContentView: View {
     }
 
     // MARK: - Actions
-
-    private func addPDFs() {
-        let urls = ImportService.pickPDFs()
-        if !urls.isEmpty { state.importDocuments(urls) }
-    }
-
-    private func chooseOutputFolder() {
-        if let url = ImportService.pickFolder(startingAt: state.outputFolder) {
-            state.setOutputFolder(url)
-        }
-    }
 
     private func handleDrop(_ providers: [NSItemProvider]) -> Bool {
         for provider in providers {

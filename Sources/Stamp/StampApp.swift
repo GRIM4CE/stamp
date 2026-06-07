@@ -7,7 +7,6 @@ struct StampApp: App {
         WindowGroup {
             StampRootView()
         }
-        .windowStyle(.titleBar)
-        .windowToolbarStyle(.unified)
+        .windowStyle(.hiddenTitleBar)
     }
 }

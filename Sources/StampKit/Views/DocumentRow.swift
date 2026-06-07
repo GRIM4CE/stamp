@@ -2,6 +2,7 @@ import SwiftUI
 
 struct DocumentRow: View {
     @ObservedObject var doc: StampDoc
+    @EnvironmentObject var state: AppState
 
     var body: some View {
         HStack(spacing: 10) {
@@ -35,9 +36,9 @@ struct DocumentRow: View {
     private var statusBadge: some View {
         let (text, color): (String, Color) = {
             switch doc.status {
-            case .pending, .approved: return ("Ready", Theme.pearlAqua)
-            case .written: return ("Saved", Theme.stormyTeal)
-            case .failed: return ("Failed", Theme.tangerineDream)
+            case .pending, .approved: return (state.strings.statusReady, Theme.pearlAqua)
+            case .written: return (state.strings.statusSaved, Theme.stormyTeal)
+            case .failed: return (state.strings.statusFailed, Theme.tangerineDream)
             }
         }()
         return Text(text)
