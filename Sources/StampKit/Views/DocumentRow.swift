@@ -3,6 +3,7 @@ import SwiftUI
 struct DocumentRow: View {
     @ObservedObject var doc: StampDoc
     @EnvironmentObject var state: AppState
+    @State private var isHovering = false
 
     var body: some View {
         HStack(spacing: 10) {
@@ -15,8 +16,21 @@ struct DocumentRow: View {
                 }
             }
             Spacer(minLength: 0)
+            removeButton
         }
         .padding(.vertical, 4)
+        .onHover { isHovering = $0 }
+    }
+
+    private var removeButton: some View {
+        Button { state.removeDocument(doc) } label: {
+            Image(systemName: "xmark.circle.fill")
+                .font(.system(size: 16))
+                .foregroundStyle(Theme.inkNavy.opacity(0.4))
+        }
+        .buttonStyle(.plain)
+        .help(state.strings.remove)
+        .opacity(isHovering ? 1 : 0)
     }
 
     private var thumbnail: some View {
@@ -29,23 +43,23 @@ struct DocumentRow: View {
         }
         .frame(width: 46, height: 60)
         .background(Color.white)
-        .overlay(RoundedRectangle(cornerRadius: 4).stroke(Theme.pearlAqua, lineWidth: 1))
+        .overlay(RoundedRectangle(cornerRadius: 4).stroke(Theme.tangerineDream, lineWidth: 1))
         .clipShape(RoundedRectangle(cornerRadius: 4))
     }
 
     private var statusBadge: some View {
-        let (text, color): (String, Color) = {
+        let style: (text: String, fg: Color, bg: Color) = {
             switch doc.status {
-            case .pending, .approved: return (state.strings.statusReady, Theme.pearlAqua)
-            case .written: return (state.strings.statusSaved, Theme.stormyTeal)
-            case .failed: return (state.strings.statusFailed, Theme.tangerineDream)
+            case .pending, .approved: return (state.strings.statusReady, Theme.stormyTeal, Theme.pearlAqua.opacity(0.35))
+            case .written: return (state.strings.statusSaved, .white, Theme.stormyTeal)
+            case .failed: return (state.strings.statusFailed, Theme.inkNavy, Theme.almondSilk)
             }
         }()
-        return Text(text)
+        return Text(style.text)
             .font(.caption2.weight(.semibold))
             .padding(.horizontal, 8).padding(.vertical, 3)
-            .background(color.opacity(0.25))
-            .foregroundStyle(color)
+            .background(style.bg)
+            .foregroundStyle(style.fg)
             .clipShape(Capsule())
     }
 }

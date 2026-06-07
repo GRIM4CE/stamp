@@ -41,6 +41,7 @@ struct SettingsView: View {
                             .truncationMode(.middle)
                         Spacer()
                         Button(t.chooseFolder) { chooseFolder() }
+                            .buttonStyle(SecondaryButtonStyle())
                     }
                     .padding(.leading, 20)
                 }
@@ -51,14 +52,13 @@ struct SettingsView: View {
             HStack {
                 Spacer()
                 Button(t.done) { dismiss() }
-                    .buttonStyle(.borderedProminent)
-                    .tint(Theme.stormyTeal)
+                    .buttonStyle(PrimaryButtonStyle())
                     .keyboardShortcut(.defaultAction)
             }
         }
         .padding(24)
         .frame(width: 420, height: 320)
-        .background(Color.white)
+        .background(Theme.aliceBlue)
     }
 
     private var languageBinding: Binding<AppLanguage> {

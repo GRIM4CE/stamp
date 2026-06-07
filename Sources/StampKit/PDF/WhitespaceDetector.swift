@@ -74,12 +74,17 @@ public enum WhitespaceDetector {
         if y1 < y0 { y0 = 0; y1 = max(0, h - ch) }
 
         let step = max(1, min(cw, ch) / 8)
-        // Emptiness wins first: the window with the least ink is chosen so the stamp
-        // never lands on content when clear space exists. Position only breaks
-        // near-ties — the bonus for a full-height move up is smaller than the cost of
-        // a single ink pixel, so the topmost *empty* window wins, but any empty
-        // window always beats a higher one that overlaps content.
-        let lambda = 0.5 / Double(h)
+        // Three priorities, in order:
+        //  1. Never cover content: any ink *under* the stamp is hugely penalized, so a
+        //     clear window always beats one overlapping content.
+        //  2. Stay at the top: among clear windows, a higher one wins by a wide margin,
+        //     so the stamp sits at the top whenever the top has room.
+        //  3. Breathe: ink in the padded border is a mild penalty, so within a band the
+        //     stamp drifts toward the clearest spot (e.g. away from a logo) without ever
+        //     dropping to a lower band just to gain clearance.
+        let coverWeight = 1_000_000.0
+        let topWeight = 1.0
+        let breatheWeight = 0.02
         var bestScore = Double.greatestFiniteMagnitude
         var best = CGRect(x: x0, y: y0, width: cw, height: ch)
         var bestInk = Int.max
@@ -88,12 +93,15 @@ public enum WhitespaceDetector {
         while y <= y1 {
             var x = x0
             while x <= x1 {
-                let ink = paddedInk(x, y, cw, ch)
-                let score = Double(ink) + lambda * Double(y)
+                let coreInk = windowInk(x, y, cw, ch)
+                let borderInk = paddedInk(x, y, cw, ch) - coreInk
+                let score = coverWeight * Double(coreInk)
+                    + topWeight * Double(y)
+                    + breatheWeight * Double(borderInk)
                 if score < bestScore {
                     bestScore = score
                     best = CGRect(x: x, y: y, width: cw, height: ch)
-                    bestInk = ink
+                    bestInk = coreInk
                 }
                 x = (x == x1) ? x1 + 1 : min(x + step, x1)
             }

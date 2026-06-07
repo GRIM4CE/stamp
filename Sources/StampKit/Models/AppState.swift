@@ -78,6 +78,13 @@ final class AppState: ObservableObject {
         if selection == nil { selection = documents.first?.id }
     }
 
+    /// Removes a document from the list. Only affects the in-app list — the
+    /// original PDF on disk is never touched.
+    func removeDocument(_ doc: StampDoc) {
+        documents.removeAll { $0.id == doc.id }
+        if selection == doc.id { selection = documents.first?.id }
+    }
+
     /// Loads thumbnail, page count, and the auto whitespace position off the main thread.
     private func prepare(_ doc: StampDoc) {
         let url = doc.sourceURL

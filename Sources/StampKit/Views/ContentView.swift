@@ -10,16 +10,13 @@ struct ContentView: View {
     var body: some View {
         VStack(spacing: 0) {
             header
-            Divider()
             HStack(spacing: 0) {
                 if showSidebar {
                     DocumentListView()
                         .frame(width: 320)
-                    Divider()
                 }
                 detail
             }
-            Divider()
             footer
         }
         .overlay(dropHighlight)
@@ -51,7 +48,7 @@ struct ContentView: View {
         .padding(.leading, 80)
         .padding(.trailing, 16)
         .frame(height: 52)
-        .background(Color.white)
+        .background(Theme.panelTint)
     }
 
     // MARK: - Footer
@@ -73,7 +70,7 @@ struct ContentView: View {
         }
         .padding(.horizontal, 16)
         .frame(height: 36)
-        .background(Color.white)
+        .background(Theme.panelTint)
     }
 
     @ViewBuilder
@@ -83,9 +80,9 @@ struct ContentView: View {
         } else {
             VStack(spacing: 10) {
                 Image(systemName: "sparkles.rectangle.stack")
-                    .font(.system(size: 40)).foregroundStyle(Theme.pearlAqua)
+                    .font(.system(size: 40)).foregroundStyle(Theme.tangerineDream)
                 Text(state.strings.selectInvoice)
-                    .foregroundStyle(Theme.stormyTeal.opacity(0.7))
+                    .foregroundStyle(Theme.inkNavy.opacity(0.6))
             }
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(Theme.aliceBlue)
@@ -94,7 +91,7 @@ struct ContentView: View {
 
     private var dropHighlight: some View {
         RoundedRectangle(cornerRadius: 8)
-            .stroke(Theme.stormyTeal, lineWidth: 3)
+            .stroke(Theme.tangerineDream, lineWidth: 3)
             .padding(4)
             .opacity(isDropTargeted ? 1 : 0)
             .allowsHitTesting(false)

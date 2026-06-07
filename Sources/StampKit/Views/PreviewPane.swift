@@ -14,9 +14,7 @@ struct PreviewPane: View {
     var body: some View {
         VStack(spacing: 0) {
             header
-            Divider()
             previewArea
-            Divider()
             footer
         }
         .background(Theme.aliceBlue)
@@ -85,9 +83,7 @@ struct PreviewPane: View {
                 Label(state.strings.approveSave, systemImage: "checkmark.seal.fill")
                     .frame(minWidth: 140)
             }
-            .buttonStyle(.borderedProminent)
-            .tint(Theme.stormyTeal)
-            .controlSize(.large)
+            .buttonStyle(PrimaryButtonStyle())
             .disabled(state.isWriting || doc.stampRect == nil)
         }
         .padding(12)
@@ -103,13 +99,16 @@ struct PreviewPane: View {
                 nudgeButton("arrow.down", dx: 0, dy: -nudgeStep)
             }
             nudgeButton("arrow.right", dx: nudgeStep, dy: 0)
+            Text(state.strings.dragStamp).font(.caption).foregroundStyle(Theme.inkNavy.opacity(0.7))
         }
     }
 
     private func nudgeButton(_ icon: String, dx: CGFloat, dy: CGFloat) -> some View {
-        Button { nudge(dx: dx, dy: dy) } label: { Image(systemName: icon) }
-            .buttonStyle(.bordered)
-            .disabled(doc.stampRect == nil)
+        Button { nudge(dx: dx, dy: dy) } label: {
+            Image(systemName: icon)
+        }
+        .buttonStyle(SecondaryButtonStyle())
+        .disabled(doc.stampRect == nil)
     }
 
     @ViewBuilder
@@ -120,7 +119,10 @@ struct PreviewPane: View {
                 .foregroundStyle(Theme.stormyTeal)
         case .failed(let message):
             Label(message, systemImage: "exclamationmark.triangle.fill")
-                .foregroundStyle(Theme.tangerineDream).lineLimit(1)
+                .foregroundStyle(Theme.inkNavy).lineLimit(1)
+                .padding(.horizontal, 10).padding(.vertical, 5)
+                .background(Theme.almondSilk)
+                .clipShape(Capsule())
         default:
             EmptyView()
         }

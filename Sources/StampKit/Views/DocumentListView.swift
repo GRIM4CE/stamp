@@ -6,7 +6,6 @@ struct DocumentListView: View {
     var body: some View {
         VStack(spacing: 0) {
             addBar
-            Divider()
             if state.documents.isEmpty {
                 emptyState
             } else {
@@ -16,7 +15,6 @@ struct DocumentListView: View {
                     }
                 }
                 .listStyle(.inset)
-                Divider()
                 saveAllBar
             }
         }
@@ -28,9 +26,7 @@ struct DocumentListView: View {
             Label(state.strings.addDocument, systemImage: "plus")
                 .frame(maxWidth: .infinity)
         }
-        .buttonStyle(.borderedProminent)
-        .tint(Theme.stormyTeal)
-        .controlSize(.large)
+        .buttonStyle(PrimaryButtonStyle())
         .padding(12)
         .background(Theme.aliceBlue)
     }
@@ -42,9 +38,7 @@ struct DocumentListView: View {
             Label(saveAllTitle, systemImage: "square.and.arrow.down")
                 .frame(maxWidth: .infinity)
         }
-        .buttonStyle(.borderedProminent)
-        .tint(Theme.stormyTeal)
-        .controlSize(.large)
+        .buttonStyle(PrimaryButtonStyle())
         .disabled(state.isWriting || state.pendingDocuments.isEmpty)
         .padding(12)
         .background(Theme.aliceBlue)
@@ -61,7 +55,7 @@ struct DocumentListView: View {
     private var emptyState: some View {
         VStack(spacing: 12) {
             Image(systemName: "doc.badge.plus")
-                .font(.system(size: 38)).foregroundStyle(Theme.pearlAqua)
+                .font(.system(size: 38)).foregroundStyle(Theme.tangerineDream)
             Text(state.strings.noInvoices).font(.headline)
             Text(state.strings.dragHint)
                 .font(.subheadline).foregroundStyle(.secondary)

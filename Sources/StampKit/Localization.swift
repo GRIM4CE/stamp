@@ -27,7 +27,7 @@ struct L10n {
     // Header / sidebar
     var sidebarShow: String { pick("Afficher la liste", "Show list") }
     var sidebarHide: String { pick("Masquer la liste", "Hide list") }
-    var addDocument: String { pick("Ajouter un document", "Add a document") }
+    var addDocument: String { pick("Ajouter des documents", "Add documents") }
     var selectInvoice: String {
         pick("Sélectionnez une facture pour prévisualiser le tampon",
              "Select an invoice to preview the stamp")
@@ -40,6 +40,7 @@ struct L10n {
              "Drag files here, or use the button above.")
     }
     var allSaved: String { pick("Tout est enregistré", "All saved") }
+    var remove: String { pick("Retirer", "Remove") }
     func saveAll(_ count: Int) -> String { pick("Tout enregistrer (\(count))", "Save all (\(count))") }
     func saving(_ done: Int, _ total: Int) -> String {
         pick("Enregistrement \(done)/\(total)…", "Saving \(done)/\(total)…")
@@ -52,7 +53,7 @@ struct L10n {
 
     // Preview
     func pageCount(_ n: Int) -> String { pick("\(n) page\(n > 1 ? "s" : "")", "\(n) page\(n == 1 ? "" : "s")") }
-    var dragStamp: String { pick("Glissez pour repositionner le tampon", "Drag to reposition the stamp") }
+    var dragStamp: String { pick("Cliquez-glissez le tampon, ou utilisez les boutons, pour l'ajuster", "Click and drag the stamp, or use the buttons, to adjust it") }
     var approveSave: String { pick("Valider et enregistrer", "Approve and save") }
     var adjust: String { pick("Ajuster", "Adjust") }
     var deduction: String { pick("Déduction", "Deduction") }
