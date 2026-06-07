@@ -43,11 +43,14 @@ struct ContentView: View {
             .foregroundStyle(Theme.inkNavy.opacity(0.7))
             .help(state.strings.settingsTitle)
         }
-        // Leave room on the left for the window's traffic-light controls,
-        // which float over the content when the title bar is hidden.
-        .padding(.leading, 80)
+        // Title aligns with the sidebar's "Add documents" button (12pt inset).
+        // The window's traffic-light controls float over the top-left when the
+        // title bar is hidden, so push this row down to clear them vertically
+        // instead of indenting it.
+        .padding(.leading, 12)
         .padding(.trailing, 16)
-        .frame(height: 52)
+        .padding(.top, 28)
+        .padding(.bottom, 10)
         .background(Theme.panelTint)
     }
 
